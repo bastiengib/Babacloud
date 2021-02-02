@@ -1,5 +1,10 @@
-microk8s.add-node
-# > microk8s join x.x.x.x:25000/pass
-# If the node you are adding is not reachable through the default interface you can use one of the following:
-# microk8s join x.x.x.x:25000/pass
-# microk8s join lo.cal.i.p:25000/pass
+# init swarm
+docker swarm init --advertise-addr $1
+
+# dashboard
+docker service create \
+        --name dashboard \
+        --publish 8080:8080/tcp \
+        --constraint node.role==manager \
+        --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+        alexellis2/visualizer-arm:latest
