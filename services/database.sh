@@ -1,0 +1,1 @@
+docker stack deploy --compose-file ./compose/database-compose.yml database

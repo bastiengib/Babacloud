@@ -1,0 +1,66 @@
+version: '3.7'
+
+services:
+  node_exporter:
+    container_name: 'node_exporter'
+    image: prom/node-exporter
+    restart: always
+    ports:
+      - '9100:9100'
+    deploy:
+      mode: global
+      
+  cadvisor:
+    container_name: 'cadvisor'
+    image: budry/cadvisor-arm
+    ports:
+      - '9324:8080'
+    restart: always
+    deploy:
+      mode: global
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  prometheus:
+    container_name: 'prometheus'
+    image: prom/prometheus:v2.11.1
+    ports:
+      - '9090:9090'
+    environment:
+      - "constraint:node.labels.usage==manager"
+    depends_on:
+      - node_exporter
+    deploy:
+      replicas: 1
+    volumes:
+      - prometheus-data:/prometheus
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    container_name: 'grafana'
+    image: grafana/grafana:6.2.5
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+      - "constraint:node.labels.usage==manager"
+    deploy:
+      replicas: 1
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ../grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ../grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ../grafana/dashboards:/var/lib/grafana/dashboards
+
+volumes:
+  prometheus-data:
+  grafana-data:

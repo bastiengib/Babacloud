@@ -1,0 +1,34 @@
+# my global config
+global:
+  scrape_interval:     5s # Set the scrape interval to every 5 seconds. Default is every 1 minute.
+  evaluation_interval: 5s # Evaluate rules every 5 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# A scrape configuration containing exactly one endpoint to scrape:
+scrape_configs:
+ # ------------------------------
+ # slice1
+ # ------------------------------
+ # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'cadvisor-slice1'
+    static_configs:
+    #Here you have to specify the ip of the vm (private ip of your network, not the public ip) providing the data, and also its port (defined in cadvisor and node_exporter)
+      - targets: ['192.168.1.1:9324']
+
+    #same as above
+  - job_name: 'node-exporter-slice1'
+    static_configs:
+      - targets: ['192.168.1.1:9100']
+ # ------------------------------
+ # slice2
+ # ------------------------------
+ # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'cadvisor-slice2'
+    static_configs:
+    #Here you have to specify the ip of the vm (private ip of your network, not the public ip) providing the data, and also its port (defined in cadvisor and node_exporter)
+      - targets: ['192.168.1.2:9324']
+
+    #same as above
+  - job_name: 'node-exporter-slice2'
+    static_configs:
+      - targets: ['192.168.1.2:9100']
